@@ -14,12 +14,17 @@ pipeline {
               steps {
                   sh 'tidy -q -e *.html'
               }
-         }    
+         }
+         stage('Security Scan') {
+              steps { 
+                 aquaMicroscanner imageName: 'alpine:latest', notCompleted: 'exit 1', onDisallowed: 'fail'
+              }
+         }         
          stage('Upload to AWS') {
               steps {
                   withAWS(region:'us-east-2',credentials:'	abaymanmorpho_id') {
                   sh 'echo "Uploading content with AWS creds"'
-                      s3Upload(pathStyleAccessEnabled: true, payloadSigningEnabled: true, file:'index.html', bucket:'s3://devops-ndg')
+                      s3Upload(pathStyleAccessEnabled: true, payloadSigningEnabled: true, file:'index.html', bucket:'devops-ndg')
                   }
               }
          }
